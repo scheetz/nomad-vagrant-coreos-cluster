@@ -1,0 +1,17 @@
+--- a/server.yaml
++++ b/server.yaml
+@@ -21,16 +21,11 @@ write-files:
+     content: |
+       log_level = "DEBUG"
+       data_dir = "/tmp/nomad"
+-      bind_addr = "0.0.0.0"
++      bind_addr = "$private_ipv4"
+       server {
+           enabled = true
+           bootstrap_expect = 1
+       }
+-      advertise {
+-          # We need to specify our host's IP because we can't
+-          # advertise 0.0.0.0 to other nodes in our cluster.
+-          rpc = "$private_ipv4:4647"
+-     }

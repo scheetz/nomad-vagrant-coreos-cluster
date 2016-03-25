@@ -21,10 +21,15 @@ write-files:
     content: |
       log_level = "DEBUG"
       data_dir = "/tmp/nomad"
-      bind_addr = "$private_ipv4"
+      bind_addr = "0.0.0.0"
       server {
           enabled = true
           bootstrap_expect = 1
+      }
+      advertise {
+          # We need to specify our host's IP because we can't
+          # advertise 0.0.0.0 to other nodes in our cluster.
+          rpc = "$private_ipv4:4647"
       }
 
 coreos:
