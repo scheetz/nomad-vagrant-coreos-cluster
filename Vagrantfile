@@ -161,8 +161,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     # most http tools, like wget and curl do not undestand IP range
     # thus adding each node one by one to no_proxy
     no_proxies = NO_PROXY.split(",")
-    (1..(NODES.to_i + 1)).each do |i|
-      vm_ip_addr = "#{BASE_IP_ADDR}.#{i+100}"
+    (0..NODES.to_i).each do |i|
+      vm_ip_addr = "#{BASE_IP_ADDR}.#{i+101}"
       Object.redefine_const(:NO_PROXY,
         "#{NO_PROXY},#{vm_ip_addr}") unless no_proxies.include?(vm_ip_addr)
     end
@@ -172,16 +172,16 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.proxy.enabled = { docker: false }
   end
 
-  (1..(NODES.to_i + 1)).each do |i|
-    if i == 1
+  (0..NODES.to_i).each do |i|
+    if i == 0
       hostname = "server"
-      MASTER_IP="#{BASE_IP_ADDR}.#{i+99}"
+      MASTER_IP="#{BASE_IP_ADDR}.#{i+100}"
       ETCD_SEED_CLUSTER = "#{hostname}=http://#{MASTER_IP}:2380"
       cfg = SERVER_YAML
       memory = SERVER_MEM
       cpus = SERVER_CPU
     else
-      hostname = "client-%02d" % (i - 1)
+      hostname = "client-%02d" % i
       cfg = CLIENT_YAML
       memory = CLIENT_MEM
       cpus = CLIENT_CPUS
@@ -246,10 +246,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         end
       end
 
-      if vmName == "client-%02d" % (i - 1)
+      if vmName == "client-%02d" % i
         kHost.trigger.after [:up] do
-          info "Waiting for Nomad client [client-%02d" % (i - 1) + "] to become ready..."
-          j, uri, hasResponse = 0, URI("http://#{BASE_IP_ADDR}.#{i+99}:4646"), false
+          info "Waiting for Nomad client [client-%02d" % i + "] to become ready..."
+          j, uri, hasResponse = 0, URI("http://#{BASE_IP_ADDR}.#{i+100}:4646"), false
           loop do
             j += 1
             begin
@@ -324,7 +324,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         end
       end
 
-      kHost.vm.network :private_network, ip: "#{BASE_IP_ADDR}.#{i+99}"
+      kHost.vm.network :private_network, ip: "#{BASE_IP_ADDR}.#{i+100}"
       # you can override this in synced_folders.yaml
       kHost.vm.synced_folder ".", "/vagrant", disabled: true
 
